@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>banana converter</title>
+<style>
+/* colors in one place so dark mode is easy */
+:root {
+  --bg: #fff; --fg: #111; --link: #00e; --grey: #666; --line: #bbb;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #111; --fg: #ddd; --link: #8ab4ff; --grey: #999; --line: #444; }
+}
+:root[data-theme="dark"] { --bg: #111; --fg: #ddd; --link: #8ab4ff; --grey: #999; --line: #444; }
+
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 17px/1.55 Georgia, "Times New Roman", serif;
+}
+main { max-width: 34em; margin: 0 auto; padding: 28px 16px 48px; }
+h1 { font-size: 1.5rem; font-weight: normal; margin: 0 0 16px; }
+p { margin: 0 0 14px; }
+a { color: var(--link); }
+
+input, select {
+  font: inherit; color: var(--fg); background: var(--bg);
+  border: 1px solid var(--line); padding: 4px 6px; border-radius: 0;
+}
+input { width: 7em; }
+
+#result { margin: 18px 0 4px; font-size: 1.3rem; }
+#comment { color: var(--grey); margin-bottom: 26px; }
+
+table { border-collapse: collapse; width: 100%; margin: 8px 0 24px; }
+td { border-top: 1px solid var(--line); padding: 5px 4px; }
+td + td { text-align: right; white-space: nowrap; }
+
+.small { color: var(--grey); font-size: .9rem; }
+</style>
+</head>
+<body>
+<main>
+<h1>banana converter</h1>
+
+<p>Bananas have a bit of potassium-40 in them, so they’re very slightly radioactive. Some people use that to explain radiation doses: one banana is about 0.1 µSv. I wanted to see how many bananas a chest X-ray is, so I wrote this.</p>
+
+<p>
+  <input id="amount" type="number" min="0" step="any" value="7" aria-label="dose">
+  <select id="unit" aria-label="unit">
+    <option value="0.001">nSv</option>
+    <option value="1">µSv</option>
+    <option value="1000" selected>mSv</option>
+    <option value="1000000">Sv</option>
+  </select>
+</p>
+
+<div id="result"></div>
+<p id="comment"></p>
+
+<p>Stuff to try:</p>
+<table id="examples"></table>
+
+<p class="small">This is a joke with real numbers in it, not a safety tool. Eating a banana doesn’t really give you 0.1 µSv, because your body keeps its potassium level about the same. The doses are rough averages (UNSCEAR and similar). If you’re actually worried about radiation, ask a doctor.</p>
+</main>
+
+<script>
+// 1 banana = 0.1 µSv (the potassium-40 thing)
+const BANANA = 0.1
+
+// all in µSv, rough numbers
+const examples = [
+  ["dental X-ray", 5],
+  ["flight, Paris to New York", 50],
+  ["chest X-ray", 100],
+  ["one year of background radiation in France", 2900],
+  ["abdominal CT scan", 7000],
+]
+
+const amount = document.getElementById("amount")
+const unit = document.getElementById("unit")
+const result = document.getElementById("result")
+const comment = document.getElementById("comment")
+const table = document.getElementById("examples")
+
+const nice = n => n.toLocaleString("en-US", { maximumFractionDigits: 1 })
+
+function update() {
+  const v = parseFloat(amount.value)
+  if (isNaN(v) || v < 0) {
+    result.textContent = ""
+    comment.textContent = "Needs a number above zero."
+    return
+  }
+
+  const bananas = v * unit.value / BANANA
+  result.textContent = "= " + nice(bananas) + (bananas === 1 ? " banana" : " bananas")
+
+  if (bananas < 1) comment.textContent = "Less than a banana."
+  else if (bananas < 1000) comment.textContent = "Roughly a few bunches."
+  else if (bananas < 1e6) comment.textContent = "That’s a truckload of bananas."
+  else comment.textContent = "That’s more bananas than anyone should own."
+}
+
+// build the table of examples
+examples.forEach(([name, usv]) => {
+  const row = table.insertRow()
+  const link = document.createElement("a")
+  link.href = "#"
+  link.textContent = name
+  link.onclick = e => {
+    e.preventDefault()
+    amount.value = usv
+    unit.value = "1"
+    update()
+  }
+  row.insertCell().appendChild(link)
+  row.insertCell().textContent = nice(usv / BANANA) + " bananas"
+})
+
+amount.addEventListener("input", update)
+unit.addEventListener("change", update)
+update()
+</script>
+</body>
+</html>
