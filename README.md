@@ -17,12 +17,6 @@ If you want it online, GitHub Pages works fine: push it, then turn on Pages in t
 - The example doses (dental X-ray, flight, CT scan, etc.) are rough averages from public sources like UNSCEAR. Real doses depend on the machine, the person and a lot of other things.
 - If you're genuinely worried about a dose you got, talk to a doctor or your local radiation protection agency, not a banana page.
 
-## Maybe later
-
-- more examples (smoke detector? granite countertop?)
-- a "bananas per day" mode
-- better wording for the really big numbers
-
 ## License
 
 MIT. Do whatever you want with it.
